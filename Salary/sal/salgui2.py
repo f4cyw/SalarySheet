@@ -1,8 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+import openpyxl
+import pandas as pd
 
 class FileSelection(tk.LabelFrame):
+    
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -33,7 +36,10 @@ class FileSelection(tk.LabelFrame):
         
 
     def openSalarySheet(self):
-        self.salaryMonth.set(filedialog.askopenfilename(initialdir='/desktop/python/salary').split("/")[-1])
+        self.salaryMonthFile = filedialog.askopenfilename(initialdir='/desktop/python/salary')
+        salaryMonthData = pd.read_excel(self.salaryMonthFile, engine = "openpyxl")
+        # print(salaryMonthData)
+        self.salaryMonth.set(self.salaryMonthFile.split("/")[-1])
 
     def openPeopleSheet(self):
         self.salaryPeople.set(filedialog.askopenfilename(initialdir='/desktop/python/salary').split("/")[-1])
@@ -54,8 +60,16 @@ class FileSelection(tk.LabelFrame):
 
 
 class FileMaking(tk.Frame):
-   def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        btn1 = ttk.Button(self, text="급여대장 선택", command = self.run)
+        btn1.grid(row=0, column=0)
+
+    def run(self):
+        pd.read_excel(FileSelection.salaryMonthFile, engine = "openpyxl")
+    
+    
+
 
 
 class MyApplication(tk.Tk):
