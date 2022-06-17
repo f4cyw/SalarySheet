@@ -33,13 +33,13 @@ class FileSelection(tk.LabelFrame):
         
 
     def openSalarySheet(self):
-        self.salaryMonth.set("이라ㅓㄴㅇ라ㅓ니ㅏㅇ러니ㅏ얼")
+        self.salaryMonth.set(filedialog.askopenfilename(initialdir='/desktop/python/salary').split("/")[-1])
 
     def openPeopleSheet(self):
-        self.salaryPeople.set("dslkfjaslkdfjalksfj")
+        self.salaryPeople.set(filedialog.askopenfilename(initialdir='/desktop/python/salary').split("/")[-1])
 
     def openPersonalSheet(self):
-        self.salaryPersonalSheet.set("dslkfjaslkdfjalksfj")
+        self.salaryPersonalSheet.set(filedialog.askopenfilename(initialdir='/desktop/python/salary').split("/")[-1])
 
     # def open():
     #     global my_image # 함수에서 이미지를 기억하도록 전역변수 선언 (안하면 사진이 안보임)
