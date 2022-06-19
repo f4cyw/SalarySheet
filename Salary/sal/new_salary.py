@@ -59,6 +59,8 @@ for names in name_data:
     wb=xw.Book('/Users/jonathanoh/Desktop/python/Salary/xltopdf/{0}.xlsx'.format(personal_name))
     wb.to_pdf('/Users/jonathanoh/Desktop/python/Salary/xltopdf/{0}.PDF'.format(personal_name))
     wb.close()
+    
+    
     to_addr =df.loc[personal_name][3]
     add_file = '/Users/jonathanoh/Desktop/python/Salary/xltopdf/{0}.PDF'.format(personal_name)
     
