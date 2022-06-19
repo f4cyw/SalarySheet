@@ -121,7 +121,7 @@ class FileSelection(tk.Frame):
                 self.salaryCostName.append(a[0]) 
             
             self.errornameLf = tk.LabelFrame(self, padx=5, pady=5)
-            self.errornameLf.grid(row=0,column=2, columnspan=2 )
+            self.errornameLf.grid(row=0,column=2, columnspan=2,sticky=tk.W)
 
             self.errorname=[]
             for a in self.namedata:
@@ -209,12 +209,12 @@ class FileSelection(tk.Frame):
                 colval=3
                 colval2 = idx-21
             tk.Checkbutton(self.chblabelframe, text=value[0], variable=self.cb_intvar[-1]).grid(row=colval2+4, column = colval, sticky='w')
-            if self.salaryCostName:
-                self.nameErrorCheck()
-                if self.errorname :
-                    pass
-                else :
-                    self.errornameLf.grid_forget()
+        if self.salaryCostName:
+            self.nameErrorCheck()
+            if self.errorname :
+                pass
+            else :
+                self.errornameLf.grid_forget()
             # self.cbText[idx] = StringVar()
             # self.cbText[idx].set(value[0])
             # self.cbVariable[idx] = IntVar()
