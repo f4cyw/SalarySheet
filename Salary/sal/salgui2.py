@@ -5,7 +5,9 @@ from typing_extensions import IntVar
 import openpyxl
 import pandas as pd
 from openpyxl.styles import Font, Color
+from pyparsing import col
 from regex import W
+from sqlalchemy import true
 import xlwings as xw
 import os
 import smtplib
@@ -27,6 +29,8 @@ class FileSelection(tk.Frame):
     salaryCost2 = []
     salaryCostName = []
     errorname=[]
+    processPossble=False
+
     font = Font(name='Calibri',size=11,bold=False,italic=False,vertAlign=None,underline='none',strike=False,color='00FFFFFF')
 
     
@@ -117,7 +121,7 @@ class FileSelection(tk.Frame):
                 self.salaryCostName.append(a[0]) 
             
             self.errornameLf = tk.LabelFrame(self, padx=5, pady=5)
-            self.errornameLf.grid(row=0,column=2)
+            self.errornameLf.grid(row=0,column=2, columnspan=2 )
 
             self.errorname=[]
             for a in self.namedata:
@@ -126,10 +130,36 @@ class FileSelection(tk.Frame):
                 else : 
                     self.errorname.append(a)
             if self.errorname:
-                tk.Label(self.errornameLf, text=self.errorname).grid(row=0, column=0)
+                if len(self.errorname)>=3:
+                    tk.Label(self.errornameLf, text="3명 이상입니다.").grid(row=0, column=0)    
+                else:
+                    tk.Label(self.errornameLf, text=self.errorname).grid(row=0, column=0)
+            else :
+                self.errornameLf.grid_forget()
 
+
+    def nameErrorCheck(self):
+        self.errornameLf = tk.LabelFrame(self, padx=5, pady=5)
+        self.errornameLf.grid(row=0,column=2)
+        self.errorname=[]
+        self.errornameLf.grid_forget()
+        for a in self.namedata:
+            if a in self.salaryCostName:
+                pass
+            else : 
+                self.errorname.append(a)
+        if self.errorname:
+            if len(self.errorname)>=3:
+                tk.Label(self.errornameLf, text="3명 이상입니다.").grid(row=0, column=0)    
+            else:
+                tk.Label(self.errornameLf, text=self.errorname).grid(row=0, column=0)
         
     def openPeopleSheet(self):
+        # self.errornameLf.grid_forget()
+        if self.errorname:
+            self.errornameLf.grid_forget()
+        else:
+            pass
         if self.peopledata:
             self.namedata=[]  
             self.peopledata=[]
@@ -155,7 +185,7 @@ class FileSelection(tk.Frame):
                 self.peopledatalist.append(bb)
             else:
                 pass
-        print(self.namedata)
+        # print(self.namedata)
         self.cbText={}
         self.cbVariable={}
         self.cb={}
@@ -179,7 +209,12 @@ class FileSelection(tk.Frame):
                 colval=3
                 colval2 = idx-21
             tk.Checkbutton(self.chblabelframe, text=value[0], variable=self.cb_intvar[-1]).grid(row=colval2+4, column = colval, sticky='w')
-            
+            if self.salaryCostName:
+                self.nameErrorCheck()
+                if self.errorname :
+                    pass
+                else :
+                    self.errornameLf.grid_forget()
             # self.cbText[idx] = StringVar()
             # self.cbText[idx].set(value[0])
             # self.cbVariable[idx] = IntVar()
@@ -188,12 +223,14 @@ class FileSelection(tk.Frame):
             # self.cb[idx].grid(row=idx+4,column=0, padx=5, pady=3)
     
     def deselectAll(self):
-        for x in self.cb_intvar:
-            x.set("0")
+        if self.namedata:
+            for x in self.cb_intvar:
+                x.set("0")
     
     def selectAll(self):
-        for x in self.cb_intvar:
-            x.set("1")
+        if self.namedata:
+            for x in self.cb_intvar:
+                x.set("1")
         #     print(t)
         # print(x.get() for x in self.cb_intvar)
         # pass
@@ -218,18 +255,39 @@ class FileSelection(tk.Frame):
             people_table.insert("", "end", text="", values=peopledata[i], iid=i)
         
     def openPersonalSheet(self):
-        self.peopleSelect()
-        self.personalSheetFile = filedialog.askopenfilename(initialdir='/desktop/python/salary')
-        self.salaryPersonalSheet.set(self.personalSheetFile.split("/")[-1])
-        self.personalSheetWb = openpyxl.load_workbook(self.personalSheetFile)
-        self.personalSheetSh = self.personalSheetWb.active
+        self.deselectAll()
+        if self.namedata:
+            self.peopleSelect()
+            self.personalSheetFile = filedialog.askopenfilename(initialdir='/desktop/python/salary')
+            self.salaryPersonalSheet.set(self.personalSheetFile.split("/")[-1])
 
-    
+            if self.personalSheetFile:
+                self.processPossble = True
+            else:
+                self.salaryMonthLabel.grid_forget()
+                self.processPossble = False
+            self.personalSheetWb = openpyxl.load_workbook(self.personalSheetFile)
+            self.personalSheetSh = self.personalSheetWb.active
+            self.monthLabel = StringVar()
+            aa= self.personalSheetSh.cell(row=3, column=2).value
+            self.monthLabel.set(aa)
+            self.salaryMonthLabel = tk.LabelFrame(self, padx=5, pady=5)
+            self.salaryMonthLabel.grid(row=2,column=2, columnspan=2)
+            tk.Button(self.salaryMonthLabel, text="명세서 이름 설정", command=self.personalSheetTitle).grid(row=0, column=1)
+            tk.Entry(self.salaryMonthLabel, text=self.monthLabel).grid(row=0, column=0)
+
+
+    def personalSheetTitle(self):
+        aa= self.monthLabel.get()
+        self.personalSheetSh.cell(row=3, column=2).value = aa
+        self.personalSheetWb.save(self.personalSheetFile)
+        
+        
+
     def makePersonalSheet(self):
         if self.errorname:
              pass
-        else :
-
+        elif self.namedata and self.salaryCost and self.processPossble :
             self.peopleSelect()
             self.personalSheetWb = openpyxl.load_workbook(self.personalSheetFile)
             self.personalSheetSh = self.personalSheetWb.active
@@ -259,12 +317,13 @@ class FileSelection(tk.Frame):
                     # self.mailSend(email=emailaddr, name=name)
                 else:
                     pass
+            else : 
+                pass
 
     def makePersonalSheetEmail(self):
         if self.errorname:
              pass
-        else :
-
+        elif self.namedata and self.salaryCost and self.processPossble:
             self.peopleSelect()
             self.personalSheetWb = openpyxl.load_workbook(self.personalSheetFile)
             self.personalSheetSh = self.personalSheetWb.active
